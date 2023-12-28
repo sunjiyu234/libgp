@@ -30,6 +30,8 @@ namespace libgp {
      *  @param y target value */
     void add(const double x[], double y);
     void add(const Eigen::VectorXd x, double y);
+    void erase_num(const int i);
+    void insert_num(const int i, const double x[], double y);
     
     /** Get input vector at index k. */
     const Eigen::VectorXd & x (size_t k);

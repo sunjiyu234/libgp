@@ -4,6 +4,7 @@
 
 #include "cov_se_iso.h"
 #include <cmath>
+#include <iostream>
 
 namespace libgp
 {

@@ -51,6 +51,23 @@ namespace libgp {
     targets.push_back(y);
     assert(inputs.size()==targets.size());
     n = inputs.size();
+    delete v;
+  }
+
+  void SampleSet::erase_num(const int i){
+    inputs.erase(inputs.begin() + i);
+    targets.erase(targets.begin() + i);
+    assert(inputs.size() == targets.size());
+    n = inputs.size();
+  }
+
+  void SampleSet::insert_num(const int i, const double x[], double y){
+    Eigen::VectorXd * v = new Eigen::VectorXd(input_dim);
+    for (size_t i=0; i<input_dim; ++i) (*v)(i) = x[i];
+    inputs.insert(inputs.begin() + i, v);
+    targets.insert(targets.begin() + i, y);
+    assert(inputs.size()==targets.size());
+    n = inputs.size();
   }
   
   const Eigen::VectorXd & SampleSet::x(size_t k)

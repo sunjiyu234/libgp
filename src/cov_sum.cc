@@ -4,6 +4,7 @@
 
 #include "cov_sum.h"
 #include "cmath"
+#include "iostream"
 
 namespace libgp
 {
@@ -48,6 +49,7 @@ namespace libgp
   
   void CovSum::set_loghyper(const Eigen::VectorXd &p)
   {
+    std::cout << "param = " << p << std::endl;
     CovarianceFunction::set_loghyper(p);
     first->set_loghyper(p.head(param_dim_first));
     second->set_loghyper(p.tail(param_dim_second));
