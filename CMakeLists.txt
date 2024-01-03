@@ -1,7 +1,7 @@
 # Created by Manuel Blum on 2011-05-25.
 # Copyright 2013 University of Freiburg.
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.26)
 
 PROJECT(libgp CXX C)
 

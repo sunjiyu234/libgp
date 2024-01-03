@@ -134,27 +134,28 @@ namespace libgp {
     // can previously computed values be used?
     if (!cf->loghyper_changed) return;
     cf->loghyper_changed = false;
-    int n = sampleset->size();
+    int n_size = sampleset->size();
     // resize L if necessary
-    if (n > L.rows()) L.resize(n + initial_L_size, n + initial_L_size);
+    if (n_size > L.rows()) L.resize(n_size + initial_L_size, n_size + initial_L_size);
     // compute kernel matrix (lower triangle)
-    for(size_t i = 0; i < sampleset->size(); ++i) {
-      for(size_t j = 0; j <= i; ++j) {
-        L(i, j) = cf->get(sampleset->x(i), sampleset->x(j));
+    for(size_t i_compute = 0; i_compute < sampleset->size(); ++i_compute) {
+      for(size_t j_compute = 0; j_compute <= i_compute; ++j_compute) {
+        L(i_compute, j_compute) = cf->get(sampleset->x(i_compute), sampleset->x(j_compute));
       }
     }
     L_copy = L;
+    std::cout << "UPDATE" << std::endl;
     // perform cholesky factorization
     //solver.compute(K.selfadjointView<Eigen::Lower>());
-    L.topLeftCorner(n, n) = L.topLeftCorner(n, n).selfadjointView<Eigen::Lower>().llt().matrixL();
+    L.topLeftCorner(n_size, n_size) = L.topLeftCorner(n_size, n_size).selfadjointView<Eigen::Lower>().llt().matrixL();
     alpha_needs_update = true;
   }
   
   void GaussianProcess::update_k_star(const Eigen::VectorXd &x_star)
   {
     k_star.resize(sampleset->size());
-    for(size_t i = 0; i < sampleset->size(); ++i) {
-      k_star(i) = cf->get(x_star, sampleset->x(i));
+    for(size_t i_k_star = 0; i_k_star < sampleset->size(); ++i_k_star) {
+      k_star(i_k_star) = cf->get(x_star, sampleset->x(i_k_star));
     }
   }
 
@@ -167,10 +168,10 @@ namespace libgp {
     // Map target values to VectorXd
     const std::vector<double>& targets = sampleset->y();
     Eigen::Map<const Eigen::VectorXd> y(&targets[0], sampleset->size());
-    int n = sampleset->size();
-    alpha = L.topLeftCorner(n, n).triangularView<Eigen::Lower>().solve(y);    // cholesky分解
+    int n_size = sampleset->size();
+    alpha = L.topLeftCorner(n_size, n_size).triangularView<Eigen::Lower>().solve(y);    // cholesky分解
     std::cout << "before = " << alpha[0] << std::endl;
-    L.topLeftCorner(n, n).triangularView<Eigen::Lower>().adjoint().solveInPlace(alpha);     // alpha = (LTL)-1Y
+    L.topLeftCorner(n_size, n_size).triangularView<Eigen::Lower>().adjoint().solveInPlace(alpha);     // alpha = (LTL)-1Y
     std::cout << "after = " << alpha[0] << std::endl;
   }
   
@@ -190,8 +191,6 @@ namespace libgp {
     // create kernel matrix if sampleset is empty
     if (n == 0) {
       L(0,0) = sqrt(cf->get(sampleset->x(0), sampleset->x(0)));    // sampleset->x(0)为vector<double>
-      std::cout << "L(0, 0) = " << L(0, 0) << std::endl;
-      std::cout << "sampleset->x(0) = " << sampleset->x(0) << std::endl;
       cf->loghyper_changed = false;
       L_copy(0,0) = cf->get(sampleset->x(0), sampleset->x(0));
       alpha_needs_update = true;
@@ -221,7 +220,6 @@ namespace libgp {
 
     if (n == 1){
       //  添加点后，点集中包含两个点，初始构建记忆函数gamma
-      std::cout << "sampleset->x(1) = " << sampleset->x(1) << std::endl;
       Eigen::MatrixXd L_copy_0(1, 1);
       L_copy_0(0, 0) = cf->get(sampleset->x(1), sampleset->x(1));
       Eigen::MatrixXd L_copy_1(1, 1);
@@ -238,7 +236,6 @@ namespace libgp {
       star_lst.push_back(gamma_star);
       gamma_lst = {gamma_0, gamma_1};
       sum_gamma += (gamma_0 + gamma_1);
-      std::cout << "gamma_0  = " << gamma_0 << " gamma_1 = " << gamma_1 << std::endl;
     }else{
       int total_size = L_lst.size();
       Eigen::VectorXd k_hist(total_size);
@@ -317,8 +314,6 @@ namespace libgp {
     // create kernel matrix if sampleset is empty
     if (n == 0) {
       L(0,0) = sqrt(cf->get(sampleset->x(0), sampleset->x(0)));    // sampleset->x(0)为vector<double>
-      std::cout << "L(0, 0) = " << L(0, 0) << std::endl;
-      std::cout << "sampleset->x(0) = " << sampleset->x(0) << std::endl;
       cf->loghyper_changed = false;
       L_copy(0,0) = cf->get(sampleset->x(0), sampleset->x(0));
       alpha_needs_update = true;
@@ -348,7 +343,6 @@ namespace libgp {
 
     if (n == 1){
       //  添加点后，点集中包含两个点，初始构建记忆函数gamma
-      std::cout << "sampleset->x(1) = " << sampleset->x(1) << std::endl;
       Eigen::MatrixXd L_copy_0(1, 1);
       L_copy_0(0, 0) = cf->get(sampleset->x(1), sampleset->x(1));
       Eigen::MatrixXd L_copy_1(1, 1);
@@ -365,7 +359,6 @@ namespace libgp {
       star_lst.push_back(gamma_star);
       gamma_lst = {gamma_0, gamma_1};
       sum_gamma += (gamma_0 + gamma_1);
-      std::cout << "gamma_0  = " << gamma_0 << " gamma_1 = " << gamma_1 << std::endl;
     }else{
       int total_size = L_lst.size();
       Eigen::VectorXd k_hist(total_size);
@@ -471,7 +464,6 @@ namespace libgp {
       L_copy(min_index, min_index) = kappa;
       L.topLeftCorner(n+1, n+1) = L_copy.topLeftCorner(n+1, n+1).selfadjointView<Eigen::Lower>().llt().matrixL();
       sampleset->insert_num(min_index, x, y);
-      std::cout << "L(n, n) = " << L(n, n) << std::endl;
     }
     alpha_needs_update = true;
     delete v_rp;
@@ -574,7 +566,6 @@ namespace libgp {
       L_copy(min_index, min_index) = kappa;
       L.topLeftCorner(n+1, n+1) = L_copy.topLeftCorner(n+1, n+1).selfadjointView<Eigen::Lower>().llt().matrixL();
       sampleset->insert_num(min_index, x, y);
-      std::cout << "L(n, n) = " << L(n, n) << std::endl;
     }
     alpha_needs_update = true;
     delete v_rp;
@@ -797,7 +788,6 @@ namespace libgp {
 
   double GaussianProcess::cal_gamma(Eigen::MatrixXd L_now, const Eigen::VectorXd &x_input, int index){
     gamma_star.conservativeResize(L_now.rows());
-    std::cout << L_now.rows() << std::endl;
     if (L_now.rows() == 1){
       gamma_star(0) = cf->get(x_input, sampleset->x(index));
       std::cout << gamma_star(0) << std::endl;
@@ -813,7 +803,6 @@ namespace libgp {
 
   double GaussianProcess::cal_gamma_replace(Eigen::MatrixXd L_now, const Eigen::VectorXd &x_input, int min_i){
     gamma_star.conservativeResize(L_now.rows());
-    std::cout << L_now.rows() << std::endl;
     for(int num = 0; num < L_now.rows() + 1; ++num) {
       if(num == min_i){
         continue;

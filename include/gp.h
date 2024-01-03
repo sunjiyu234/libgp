@@ -68,7 +68,6 @@ namespace libgp {
 
 
     /** replace unused data from sample set.
-     *  @param i index of data
      *  @param x input array
      *  @param y output value
     */
